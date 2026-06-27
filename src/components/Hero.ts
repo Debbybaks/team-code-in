@@ -14,15 +14,14 @@ export function renderHero(): void {
 
       <h1 class="hero-logo">SM<span>Life</span></h1>
 
-      <p class="hero-tagline">
-        The AI Smart Pricing Assistant that calculates every hidden cost,
-        from fuel to packaging, so you never undersell yourself again.
-      </p>
+        <p class="hero-tagline">
+          Calculate your true product price with AI — surfacing hidden costs like fuel, electricity, packaging, and your time — so you price confidently and profitably.
+        </p>
 
-      <div class="hero-cta">
-        <button class="btn-primary" id="heroCalcBtn">${iconString(ICONS.calculator, 18)} Get Started</button>
-        <button class="btn-ghost" id="heroDashboardBtn">${iconString(ICONS.dashboard, 18)} Dashboard</button>
-      </div>
+        <div class="hero-cta">
+          <button class="btn-primary btn-lg" id="heroCalcBtn">${iconString(ICONS.calculator, 18)} Calculate My Price</button>
+          <button class="btn-ghost btn-lg" id="heroDashboardBtn">${iconString(ICONS.dashboard, 18)} View Dashboard</button>
+        </div>
 
       <div class="scroll-hint">Scroll to begin</div>
     </section>

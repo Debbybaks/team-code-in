@@ -126,5 +126,5 @@ User can save → localStorage → appears in Dashboard + History
 | 6. Calculator | ✅ Done | 5 tabs, inputs, results, meter, breakdown, competitor |
 | 7. AI Integration | ✅ Done | OpenRouter client, prompts, fallback, AICoach |
 | 8. Auth + Dashboard | ✅ Done | Sign-in modal, Dashboard, History, Profile |
-| 9. GSAP Animations | 🔲 Pending | Scroll-triggered, number tweens, transitions |
-| 10. Polish | 🔲 Pending | Icon audit, mobile QA, edge cases, copy |
+| 9. GSAP Animations | ✅ done | Scroll-triggered, number tweens, transitions |
+| 10. Polish | ✅ done | Icon audit, mobile QA, edge cases, copy |

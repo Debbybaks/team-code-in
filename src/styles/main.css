@@ -679,6 +679,15 @@ a { color: inherit; text-decoration: none; }
   gap: 0.3rem;
 }
 
+.input-group.has-error .input-label {
+  color: var(--danger);
+}
+
+.input-group.has-error .input-field {
+  border-color: var(--danger);
+  background-color: rgba(155, 44, 44, 0.05);
+}
+
 .input-label {
   font-size: 0.76rem;
   font-weight: 600;
@@ -1440,19 +1449,26 @@ footer strong { color: var(--rose-light); }
 /* ── AI Coach Chat ── */
 .coach-chat-toggle {
   position: fixed;
-  bottom: calc(var(--bottom-nav-height) + 1rem);
-  right: 1rem;
-  z-index: 50;
-  width: 52px; height: 52px;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--plum), #9B4DCA);
-  color: #fff;
+  background: var(--plum);
+  color: var(--white);
   border: none;
-  box-shadow: 0 4px 16px rgba(61,26,94,0.35);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s;
+  cursor: pointer;
+  z-index: 999;
+  transition: all 0.2s ease;
+}
+
+.coach-chat-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 .coach-chat-toggle:hover {
   transform: scale(1.08);
@@ -1714,6 +1730,9 @@ footer strong { color: var(--rose-light); }
   .coach-chat-toggle {
     bottom: 1.5rem;
     right: 1.5rem;
+    width: 56px;
+    height: 56px;
+    font-size: 1.2rem;
   }
   .coach-panel {
     left: auto;
@@ -1733,4 +1752,69 @@ footer strong { color: var(--rose-light); }
   .tips-grid { grid-template-columns: repeat(3, 1fr); }
   .results-grid { grid-template-columns: repeat(3, 1fr); }
   .stats-strip { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Coach Panel */
+.coach-panel {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  max-width: 420px;
+  height: 80vh;
+  max-height: 640px;
+  background: var(--white);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.coach-panel.open {
+  transform: translateY(0);
+}
+
+.coach-panel-handle {
+  width: 48px;
+  height: 4px;
+  background: var(--text-light);
+  border-radius: 2px;
+  margin: 0.75rem auto;
+  opacity: 0.5;
+}
+
+/* Loading States */
+.calculator-loading {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--text-light);
+}
+
+.calculator-loading p {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  max-width: 300px;
+}
+
+/* Additional Responsive Fixes */
+@media (min-width: 480px) {
+  .results-grid { grid-template-columns: repeat(2, 1fr); }
+  .input-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 768px) {
+  .results-grid { grid-template-columns: repeat(3, 1fr); }
+  .input-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .results-grid { grid-template-columns: repeat(3, 1fr); }
+  .input-grid { grid-template-columns: repeat(3, 1fr); }
 }

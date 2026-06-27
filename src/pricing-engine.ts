@@ -14,20 +14,20 @@ export function calculate(inputs: CalcInputs): CalcResult {
   // Production
   const directCost = rawMaterials + packaging + equipment;
 
-  // Overhead per unit
+  // Overhead per unit (handle 0 units case)
   const totalOverheadMo = rent + electricity + water + internet + marketing + otherOverhead;
-  const overheadPerUnit = totalOverheadMo / u;
+  const overheadPerUnit = u > 0 ? totalOverheadMo / u : 0;
 
-  // Logistics per unit
+  // Logistics per unit (handle 0 units case)
   const totalLogisticsMo = (fuelPerTrip * tripsPerMonth) + transportMarket + courierFees + stallFees;
-  const logisticsPerUnit = totalLogisticsMo / u;
+  const logisticsPerUnit = u > 0 ? totalLogisticsMo / u : 0;
 
   // Labour
   const myLabourPerUnit = myHourlyRate * hoursPerUnit;
-  const staffPerUnit = (staffWages + training) / u;
+  const staffPerUnit = u > 0 ? (staffWages + training) / u : 0;
 
-  // Savings per unit
-  const savingsPerUnit = savingsGoal / u;
+  // Savings per unit (handle 0 units case)
+  const savingsPerUnit = u > 0 ? savingsGoal / u : 0;
 
   // Total cost
   const totalCostPerUnit = directCost + overheadPerUnit + logisticsPerUnit + myLabourPerUnit + staffPerUnit + savingsPerUnit;

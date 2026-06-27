@@ -23,6 +23,13 @@ export function renderCalculator(): void {
       <p class="section-body">Enter your costs below, from raw materials to the fuel you burn on delivery runs. SMLife calculates your breakeven, recommended price, and profit health.</p>
     </div>
 
+    <div class="calculator-loading" id="calcLoading">
+      <div class="loading-spinner"></div>
+      <p>Calculating your pricing strategy...</p>
+    </div>
+
+    <div class="calculator-section" id="calcContent" style="display:none;">
+
     <div class="calculator-section">
       <div class="calc-header">
         <div class="calc-icon-box">${iconString(ICONS.calculator, 22)}</div>
@@ -397,6 +404,47 @@ function renderPricingTab(): string {
   `;
 }
 
+function validateInputs(): boolean {
+  let isValid = true;
+  const requiredFields = [
+    "rawMaterials", "packaging", "equipment", "unitsPerMonth",
+    "desiredMargin"
+  ];
+  
+  // Reset validation states
+  document.querySelectorAll(".input-group").forEach(group => {
+    group.classList.remove("has-error");
+  });
+  
+  // Validate required fields
+  for (const fieldId of requiredFields) {
+    const field = document.getElementById(fieldId) as HTMLInputElement;
+    const value = parseFloat(field.value) || 0;
+    
+    if (value <= 0) {
+      const group = field.closest(".input-group");
+      if (group) group.classList.add("has-error");
+      isValid = false;
+    }
+  }
+  
+  // Special validation for unitsPerMonth
+  const unitsField = document.getElementById("unitsPerMonth") as HTMLInputElement;
+  const unitsValue = parseFloat(unitsField.value) || 0;
+  if (unitsValue <= 0) {
+    const group = unitsField.closest(".input-group");
+    if (group) group.classList.add("has-error");
+    isValid = false;
+  }
+  
+  if (!isValid) {
+    showToast("Please fill in all required fields with values greater than 0");
+    return false;
+  }
+  
+  return true;
+}
+
 function gatherInputs(): CalcInputs {
   return {
     productName: (document.getElementById("productName") as HTMLInputElement)?.value || "",
@@ -434,13 +482,30 @@ function updatePrefixSymbols(): void {
 }
 
 export function runCalculation(): void {
-  const inputs = gatherInputs();
-  lastInputs = { ...inputs };
-  const result = calculate(inputs);
-  lastResult = result;
+  if (!validateInputs()) {
+    return;
+  }
 
-  displayResults(inputs, result);
-  getRuleInsight(inputs, result);
+  // Show loading state
+  const loadingEl = document.getElementById("calcLoading")!;
+  const contentEl = document.getElementById("calcContent")!;
+  loadingEl.style.display = "flex";
+  contentEl.style.display = "none";
+
+  // Simulate calculation delay
+  setTimeout(() => {
+    const inputs = gatherInputs();
+    lastInputs = { ...inputs };
+    const result = calculate(inputs);
+    lastResult = result;
+
+    displayResults(inputs, result);
+    getRuleInsight(inputs, result);
+
+    // Hide loading state
+    loadingEl.style.display = "none";
+    contentEl.style.display = "block";
+  }, 800);
 }
 
 function displayResults(inputs: CalcInputs, result: CalcResult): void {

@@ -201,7 +201,7 @@ function renderPricingCards(): string {
       <!-- Premium Plan -->
       <div class="pricing-card premium">
         <div class="pricing-title">AI Premium</div>
-        <div class="pricing-price">₦2,400 <span>/ month</span></div>
+        <div class="pricing-price">₦1,200 <span>/ month</span></div>
         <div class="pricing-desc">Unleash the full potential of your business with interactive AI assistance and deep analytics.</div>
         <ul class="pricing-features">
           <li>${iconString(ICONS.check, 16, "color:var(--rose)")} Everything in Standard Free</li>
@@ -221,14 +221,14 @@ function renderPricingCards(): string {
     <div class="pricing-modal" id="checkoutModal">
       <div class="pricing-modal-content">
         <h3 style="margin-bottom:0.5rem;font-size:1.4rem;color:var(--text-dark);">${iconString(ICONS.sparkles, 24, "color:var(--rose)")}<br>SMLife Premium Checkout</h3>
-        <p style="color:var(--text-light);font-size:0.875rem;margin-bottom:1.5rem;">Simulated Sandbox checkout for <strong>AI Premium (₦2,400/month)</strong>.</p>
+        <p style="color:var(--text-light);font-size:0.875rem;margin-bottom:1.5rem;">Simulated Sandbox checkout for <strong>AI Premium (₦1,200/month)</strong>.</p>
         
         <div style="background:var(--bg-light);border-radius:12px;padding:1rem;margin-bottom:1.5rem;text-align:left;">
           <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;font-size:0.875rem;">
             <span>Plan:</span><strong style="color:var(--text-dark);">AI Premium</strong>
           </div>
           <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
-            <span>Recurring Price:</span><strong style="color:var(--text-dark);">₦2,400/mo</strong>
+            <span>Recurring Price:</span><strong style="color:var(--text-dark);">₦1,200/mo</strong>
           </div>
         </div>
 

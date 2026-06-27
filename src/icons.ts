@@ -31,7 +31,8 @@ export function icon(name: string, size = 20, className = ""): SVGElement {
   const cached = iconCache.get(cacheKey);
   if (cached) return cached.cloneNode(true) as SVGElement;
 
-  const IconComponent = (icons as Record<string, unknown>)[iconName(name)];
+  const iconKey = iconName(name);
+  const IconComponent = (icons as Record<string, unknown>)[iconKey];
   if (!IconComponent || !Array.isArray(IconComponent)) {
     const fallback = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     fallback.setAttribute("width", String(size));

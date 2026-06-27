@@ -4,6 +4,7 @@ import { store } from "./state";
 import { setCurrency } from "./currency";
 import type { Route } from "./types";
 import { iconString, ICONS } from "./icons";
+import { initAllAnimations } from "./animations";
 import { renderHero } from "./components/Hero";
 import { renderFeatures } from "./components/Features";
 import { renderTipsSection } from "./components/TipsSection";
@@ -15,7 +16,7 @@ import { renderHistory } from "./components/History";
 import { renderProfile } from "./components/Profile";
 import { renderAuthModal } from "./components/Auth";
 import { renderPricingSection, renderPricingPage } from "./components/Pricing";
-import { cleanupAICoach } from "./components/AICoach";
+import { renderAICoach, cleanupAICoach } from "./components/AICoach";
 
 const app = document.getElementById("app")!;
 
@@ -142,9 +143,14 @@ function bootstrap(): void {
 
   // Coach toggle
   document.getElementById("coachToggle")!.addEventListener("click", () => {
+    console.log("Coach toggle clicked");
     const panel = document.querySelector(".coach-panel");
     if (panel) {
+      console.log("Toggling panel open state");
       panel.classList.toggle("open");
+    } else {
+      console.log("Panel not found, rendering AI Coach");
+      renderAICoach();
     }
   });
 
@@ -152,6 +158,7 @@ function bootstrap(): void {
   store.subscribe(updateAuthUI);
 
   // Initial auth UI
+  console.log("Calling initial updateAuthUI");
   updateAuthUI();
 
   // Register routes
@@ -172,17 +179,21 @@ function closeDrawer(): void {
 }
 
 function updateAuthUI(): void {
+  console.log("updateAuthUI called");
   const isAuth = store.isAuthenticated();
   const user = store.get().user;
   const desktopBtn = document.getElementById("authDesktopBtn")!;
   const drawerBtn = document.getElementById("authDrawerBtn")!;
   const coachToggle = document.getElementById("coachToggle")!;
 
+  console.log(`Authentication state: ${isAuth}, User: ${user?.name}`);
   if (isAuth && user) {
+    console.log("User is authenticated");
     desktopBtn.innerHTML = `${iconString(ICONS.profile, 16)} ${user.name.split(" ")[0]}`;
     desktopBtn.className = "nav-btn nav-btn-ghost";
     drawerBtn.innerHTML = `${iconString(ICONS.signOut, 18)} Sign Out`;
   } else {
+    console.log("User is not authenticated");
     desktopBtn.innerHTML = `${iconString(ICONS.signIn, 16)} Sign In`;
     desktopBtn.className = "nav-btn nav-btn-primary";
     drawerBtn.innerHTML = `${iconString(ICONS.signIn, 18)} Sign In`;
@@ -211,10 +222,10 @@ function setupRoutes(): void {
         <div id="statsSection"></div>
         <div id="costAlert"></div>
         <div id="calcSection"></div>
-        <div id="featuresSection"></div>
-        <div id="pricingSection"></div>
-        <div id="tipsSection"></div>
-        <div id="bannerSection"></div>
+        <div id="featuresSection" class="lazy-load"></div>
+        <div id="pricingSection" class="lazy-load"></div>
+        <div id="tipsSection" class="lazy-load"></div>
+        <div id="bannerSection" class="lazy-load"></div>
         <div id="footerSection"></div>
       </div>
     `;
@@ -223,10 +234,36 @@ function setupRoutes(): void {
     renderStats();
     renderCostAlert();
     renderCalculator();
-    renderFeatures();
-    renderPricingSection();
-    renderTipsSection();
-    renderEmpowermentBanner();
+
+    // Set up IntersectionObserver for lazy loading
+    const lazySections = document.querySelectorAll('.lazy-load');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.id;
+          switch(sectionId) {
+            case 'featuresSection':
+              renderFeatures();
+              break;
+            case 'pricingSection':
+              renderPricingSection();
+              break;
+            case 'tipsSection':
+              renderTipsSection();
+              break;
+            case 'bannerSection':
+              renderEmpowermentBanner();
+              break;
+          }
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    lazySections.forEach(section => {
+      observer.observe(section);
+    });
+
     renderFooter();
     window.scrollTo(0, 0);
   });
@@ -343,3 +380,6 @@ export function showToast(message: string): void {
 
 // Boot
 bootstrap();
+
+// Initialize animations after bootstrap
+setTimeout(initAllAnimations, 100);
