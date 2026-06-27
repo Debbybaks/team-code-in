@@ -78,8 +78,8 @@ export const CURRENCY_MAP = {
   XOF: { symbol: "FCFA", code: "XOF", name: "West African CFA" },
 } as const;
 
-export type Route = "/" | "/dashboard" | "/calculator" | "/history" | "/profile" | "/pricing";
-export const ROUTES: Route[] = ["/", "/dashboard", "/calculator", "/history", "/profile", "/pricing"];
+export type Route = "/" | "/dashboard" | "/calculator" | "/history" | "/profile" | "/pricing" | "/test-env";
+export const ROUTES: Route[] = ["/", "/dashboard", "/calculator", "/history", "/profile", "/pricing", "/test-env"];
 
 export interface AIInsight {
   type: "insight" | "optimization" | "market" | "coach";

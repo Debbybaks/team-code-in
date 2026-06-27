@@ -92,6 +92,27 @@ function removeTyping(): void {
   document.getElementById("typingIndicator")?.remove();
 }
 
+function getRuleBasedResponse(userMessage: string): string {
+  // Rule-based fallback responses
+  const lower = userMessage.toLowerCase();
+  if (lower.includes("margin") || lower.includes("profit")) {
+    return "A healthy profit margin for most SMEs is between 20–40%. If your margin is below 10%, you're at risk — focus on reducing costs or increasing prices. Below 20% means room for improvement. Above 25% is sustainable and gives you room to reinvest.";
+  }
+  if (lower.includes("cost") || lower.includes("reduce") || lower.includes("save")) {
+    return "To reduce costs, start with your biggest expense. Common wins: negotiate with suppliers for bulk discounts, combine delivery trips to save fuel, switch to energy-efficient equipment, and review subscriptions you no longer use. Even small savings per unit add up fast.";
+  }
+  if (lower.includes("price") || lower.includes("charge") || lower.includes("how much")) {
+    return "Your price should cover: raw materials + packaging + overhead per unit + logistics per unit + labour + contingency + desired profit. Never price based on what others charge — price based on what it costs you to create and deliver value.";
+  }
+  if (lower.includes("competitor") || lower.includes("market")) {
+    return "Comparing to competitors is useful, but don't let them set your floor. If you're charging more, make sure your value proposition is clear — better quality, unique ingredients, premium packaging, or faster delivery. If you're charging less, check you're not undervaluing your work.";
+  }
+  if (lower.includes("thank")) {
+    return "You're welcome! I'm always here to help with your pricing questions. Come back anytime you need to run numbers or get a second opinion. You've got this!";
+  }
+  return "That's a great question! I can help with pricing strategies, cost optimization, competitor analysis, and business growth. What specific question do you have about your business?";
+}
+
 async function sendMessage(): Promise<void> {
   const input = document.getElementById("coachInput") as HTMLInputElement;
   const text = input.value.trim();
@@ -174,26 +195,7 @@ async function getCoachResponse(userMessage: string): Promise<string> {
   }
 
   if (!apiAvailable) {
-function getRuleBasedResponse(userMessage: string): string {
-  // Rule-based fallback responses
-  const lower = userMessage.toLowerCase();
-  if (lower.includes("margin") || lower.includes("profit")) {
-    return "A healthy profit margin for most SMEs is between 20–40%. If your margin is below 10%, you're at risk — focus on reducing costs or increasing prices. Below 20% means room for improvement. Above 25% is sustainable and gives you room to reinvest.";
-  }
-  if (lower.includes("cost") || lower.includes("reduce") || lower.includes("save")) {
-    return "To reduce costs, start with your biggest expense. Common wins: negotiate with suppliers for bulk discounts, combine delivery trips to save fuel, switch to energy-efficient equipment, and review subscriptions you no longer use. Even small savings per unit add up fast.";
-  }
-  if (lower.includes("price") || lower.includes("charge") || lower.includes("how much")) {
-    return "Your price should cover: raw materials + packaging + overhead per unit + logistics per unit + labour + contingency + desired profit. Never price based on what others charge — price based on what it costs you to create and deliver value.";
-  }
-  if (lower.includes("competitor") || lower.includes("market")) {
-    return "Comparing to competitors is useful, but don't let them set your floor. If you're charging more, make sure your value proposition is clear — better quality, unique ingredients, premium packaging, or faster delivery. If you're charging less, check you're not undervaluing your work.";
-  }
-  if (lower.includes("thank")) {
-    return "You're welcome! I'm always here to help with your pricing questions. Come back anytime you need to run numbers or get a second opinion. You've got this!";
-  }
-  return "That's a great question! I can help with pricing strategies, cost optimization, competitor analysis, and business growth. What specific question do you have about your business?";
-}
+    return getRuleBasedResponse(userMessage);
   }
 
   try {
