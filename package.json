@@ -1,0 +1,20 @@
+{
+  "name": "smlife",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@openrouter/sdk": "^0.4.0",
+    "gsap": "^3.12.7",
+    "lucide": "^0.469.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  }
+}
