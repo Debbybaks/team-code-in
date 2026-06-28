@@ -23,12 +23,12 @@ export function renderCalculator(): void {
       <p class="section-body">Enter your costs below, from raw materials to the fuel you burn on delivery runs. SMLife calculates your breakeven, recommended price, and profit health.</p>
     </div>
 
-    <div class="calculator-loading" id="calcLoading">
+    <div class="calculator-loading" id="calcLoading" style="display: none;">
       <div class="loading-spinner"></div>
       <p>Calculating your pricing strategy...</p>
     </div>
 
-    <div class="calculator-section" id="calcContent" style="display:none;">
+    <div class="calculator-section" id="calcContent">
 
     <div class="calculator-section">
       <div class="calc-header">
@@ -604,7 +604,7 @@ async function getAIInsightAndDisplay(type: "insight" | "optimization" | "market
   } catch {
     // Fallback to rule-based
     const insight = getRuleBasedInsight(lastInputs, lastResult);
-    textEl.innerHTML = parseMarkdown(insight) + `<br><br><em style="font-size:0.78rem;color:var(--text-light);">(AI unavailable — showing smart estimate. Add an OpenRouter API key in .env for AI-powered insights.)</em>`;
+    textEl.innerHTML = parseMarkdown(insight) + `<br><br><em style="font-size:0.78rem;color:var(--text-light);">(AI unavailable — showing smart estimate. Add a Groq API key in .env for AI-powered insights.)</em>`;
   }
 }
 

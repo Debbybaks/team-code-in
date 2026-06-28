@@ -755,6 +755,21 @@ a { color: inherit; text-decoration: none; }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Mobile tweaks for small screens ── */
+@media (max-width: 420px) {
+  .hero {
+    min-height: 60vh;
+    padding: 1.25rem 0.9rem;
+    margin-top: calc(-1 * var(--nav-height));
+  }
+  .hero-logo { font-size: clamp(2.2rem, 14vw, 4rem); }
+  .hero-tagline { max-width: 92%; font-size: clamp(0.95rem, 3.8vw, 1.05rem); margin: 0.9rem auto 1.25rem; }
+  .hero-cta .btn-primary, .hero-cta .btn-ghost { padding: 0.65rem 1.4rem; font-size: 0.88rem; }
+  .bottom-nav-btn { min-width: 56px; padding: 0.5rem 0.6rem; font-size: 0.7rem; }
+  .btn { min-height: 44px; }
+  .container { padding: 0 0.9rem; }
+}
+
 .results-header {
   font-size: 0.75rem;
   font-weight: 700;

@@ -233,7 +233,9 @@ function setupRoutes(): void {
     renderTicker();
     renderStats();
     renderCostAlert();
-    renderCalculator();
+    document.addEventListener("DOMContentLoaded", () => {
+  renderCalculator();
+});
 
     // Set up IntersectionObserver for lazy loading
     const lazySections = document.querySelectorAll('.lazy-load');

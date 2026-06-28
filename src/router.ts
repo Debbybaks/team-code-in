@@ -66,14 +66,7 @@ export function getCurrentParams(): Record<string, string> {
 }
 
 export function startRouter(): void {
-  // Test route to check env variables
-  onRoute("/test-env", () => {
-    const main = document.getElementById("mainContent")!;
-    main.innerHTML = `<div class="page" style="padding: 2rem;">
-      <h1>Environment Test</h1>
-      <p>API Key: ${import.meta.env.VITE_OPENROUTER_API_KEY ? "Configured (not shown for security)" : "Not configured"}</p>
-    </div>`;
-  });
+  // Removed ephemeral /test-env route for production
   
   window.addEventListener("hashchange", handleHashChange);
   // Initial load

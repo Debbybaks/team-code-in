@@ -157,138 +157,48 @@ async function sendMessage(): Promise<void> {
 }
 
 async function getCoachResponse(userMessage: string): Promise<string> {
-  const API_KEY = typeof import.meta !== "undefined" ? import.meta.env?.VITE_OPENROUTER_API_KEY : "";
-  console.log("API_KEY:", API_KEY ? "[REDACTED]" : "Not configured");
-  
-  // Add a test message to verify API key
-  if (!API_KEY) {
-    chatMessages.unshift({
-      role: "bot",
-      text: "⚠️ API Key not configured. Using fallback responses. Add VITE_OPENROUTER_API_KEY to your .env file to enable AI responses."
-    });
-    renderMessages();
-    return ""; // Skip API call if no key
-  }
+  const groqKey = typeof import.meta !== "undefined" ? import.meta.env?.VITE_GROQ_API_KEY : "";
 
-  // Add status message when API is down
-  let apiAvailable = false;
   try {
-    // Test API availability
-    const testResponse = await fetch("https://openrouter.ai/api/v1/models", {
+    const response = await fetch("/api/coach", {
+      method: "POST",
       headers: {
-        "Authorization": `Bearer ${API_KEY}`
-      }
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userMessage }),
     });
-    
-    if (!testResponse.ok) {
-      throw new Error("API unavailable");
-    }
-    
-    apiAvailable = true;
-  } catch (error) {
-    console.error("API test failed:", error);
-    chatMessages.unshift({
-      role: "bot",
-      text: "⚠️ OpenRouter API is currently unavailable. Using fallback responses. Please try again later."
-    });
-    renderMessages();
-  }
 
-  if (!apiAvailable) {
-    return getRuleBasedResponse(userMessage);
-  }
+    if (!response.ok) {
+      throw new Error(`API route returned ${response.status}`);
+    }
 
-  try {
-    // Try with different free models in sequence
-    const freeModels = [
-      "meta-llama/llama-3.1-8b-instruct:free",
-      "mistralai/mistral-7b-instruct:free",
-      "google/gemma-7b-it:free"
-    ];
-    
-    let lastError = null;
-    let response = null;
-    
-    for (const model of freeModels) {
-      try {
-        response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": window.location.origin,
-            "X-Title": "SMLife AI Pricing Coach",
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: [
-              {
-                role: "system",
-                content: "You are SMLife's AI Pricing Coach. You help women-led small businesses with pricing, cost optimization, and business strategy. Be warm, supportive, and specific. Keep responses to 3-5 sentences. Use plain language, no jargon. Never give legal or financial advice — just practical business guidance.",
-              },
-              ...chatMessages.slice(-5).map(m => ({ role: m.role, content: m.text })),
-            ],
-            max_tokens: 300,
-          }),
-        });
-        
-        if (response.ok) {
-          break; // Success with this model
-        }
-        
-        const errorData = await response.json();
-        lastError = new Error(`API error with ${model}: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
-        console.error(`Failed with model ${model}:`, errorData);
-        
-      } catch (error) {
-        lastError = error;
-        console.error(`Error with model ${model}:`, error);
-      }
-    }
-    
-    if (!response || !response.ok) {
-      throw lastError || new Error("All free models failed");
-    }
-    
     const data = await response.json();
-    console.log("API Response:", data);
-    
-    // Handle OpenRouter specific response format
-    if (data.error) {
-      throw new Error(data.error.message || "Unknown API error");
-    }
-    
-    // Check if we got a response from a free model
-    if (data.choices?.[0]?.message?.content) {
-      return data.choices[0].message.content.trim();
-    }
-    
-    // Fallback if no response content
-    return "I'm not sure how to answer that. Could you rephrase your question about pricing or business strategy?";
-  } catch (error) {
-    console.error("API Request Failed:", error);
-    let errorMessage = "I couldn't process that right now. ";
-    
-    if (error instanceof Error) {
-      if (error.message.includes("401")) {
-        errorMessage += "Please check that your OpenRouter API key is valid.";
-      } else if (error.message.includes("429")) {
-        errorMessage += "We've reached the rate limit. Please try again later.";
-      } else if (error.message.includes("400")) {
-        errorMessage += "There was an issue with the request. Please try a different question.";
-      } else if (error.message.includes("API unavailable")) {
-        errorMessage += "The AI service is currently unavailable. Using fallback responses. Please try again later.";
-      } else {
-        errorMessage += "Please try asking in a different way.";
-      }
-    }
-    
-    // If API is down, switch to rule-based responses
-    if (errorMessage.includes("unavailable")) {
+    if (data.reply) return data.reply;
+    throw new Error("No reply in response");
+  } catch {
+    if (!groqKey) return getRuleBasedResponse(userMessage);
+    try {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${groqKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama-3.1-8b-instant",
+          messages: [
+            { role: "system", content: "You are SMLife's AI Pricing Coach. You help women-led small businesses with pricing, cost optimization, and business strategy. Be warm, supportive, and specific. Keep responses to 3-5 sentences. Use plain language, no jargon. Never give legal or financial advice — just practical business guidance." },
+            ...chatMessages.slice(-5).map(m => ({ role: m.role === "bot" ? "assistant" : m.role, content: m.text })),
+          ],
+          max_tokens: 300,
+        }),
+      });
+      if (!res.ok) throw new Error("Groq fallback failed");
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content?.trim() ?? "";
+    } catch {
       return getRuleBasedResponse(userMessage);
     }
-    
-    return errorMessage;
   }
 }
 

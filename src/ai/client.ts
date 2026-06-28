@@ -1,7 +1,6 @@
 import type { CalcInputs, CalcResult, CurrencyCode } from "../types";
 
-const API_KEY = (typeof import.meta !== "undefined" && import.meta.env?.VITE_OPENROUTER_API_KEY) || "";
-const MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
+const groqKey = typeof import.meta !== "undefined" ? import.meta.env?.VITE_GROQ_API_KEY : "";
 
 function buildSystemPrompt(): string {
   return `You are SMLife's AI Pricing Coach — an expert in micro-business pricing, cost analysis, and SME growth strategies.
@@ -118,8 +117,6 @@ export async function getAIInsight(
   result: CalcResult,
   currency: CurrencyCode,
 ): Promise<string> {
-  if (!API_KEY) throw new Error("No API key");
-
   const promptMap = {
     insight: () => buildInsightPrompt(inputs, result, currency),
     optimization: () => buildOptimizationPrompt(inputs, result),
@@ -129,28 +126,44 @@ export async function getAIInsight(
   const systemPrompt = buildSystemPrompt();
   const userPrompt = promptMap[type]();
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${API_KEY}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": window.location.origin,
-      "X-Title": "SMLife AI Pricing Assistant",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      max_tokens: 300,
-    }),
-  });
+  try {
+    const response = await fetch("/api/insight", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ systemPrompt, userPrompt }),
+    });
 
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.reply ?? "I couldn't generate an insight right now. Please try again.";
+  } catch {
+    if (!groqKey) throw new Error("AI service unavailable. Using fallback responses.");
+    try {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${groqKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama-3.1-8b-instant",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          max_tokens: 300,
+        }),
+      });
+      if (!res.ok) throw new Error("Groq fallback failed");
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content?.trim() ?? "";
+    } catch {
+      throw new Error("AI service unavailable. Using fallback responses.");
+    }
   }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() ?? "I couldn't generate an insight right now. Please try again.";
 }
