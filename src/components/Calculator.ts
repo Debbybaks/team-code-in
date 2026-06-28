@@ -29,8 +29,6 @@ export function renderCalculator(): void {
     </div>
 
     <div class="calculator-section" id="calcContent">
-
-    <div class="calculator-section">
       <div class="calc-header">
         <div class="calc-icon-box">${iconString(ICONS.calculator, 22)}</div>
         <div class="calc-title-block">
@@ -82,13 +80,13 @@ export function renderCalculator(): void {
         <button class="btn btn-outline btn-lg" id="resetBtn">${iconString(ICONS.refreshCw, 18)} Reset All</button>
       </div>
 
-      <div class="results-panel" id="resultsPanel">
+      <div class="results-panel visible" id="resultsPanel">
         <div class="results-header">${iconString(ICONS.barChart3, 14)} Your Pricing Breakdown</div>
 
         <div class="profit-meter-wrap">
           <div class="profit-meter-header">
             <span class="profit-meter-label">${iconString(ICONS.trendingUp, 16)} Profit Health Meter</span>
-            <span class="profit-meter-status" id="meterStatus">Calculating…</span>
+            <span class="profit-meter-status" id="meterStatus">Enter values to see margin</span>
           </div>
           <div class="meter-track">
             <div class="meter-fill" id="meterFill" style="width:0%;"></div>
@@ -144,26 +142,31 @@ export function renderCalculator(): void {
         <div class="ai-insight" id="aiInsight">
           <div class="ai-insight-header">
             <div class="ai-insight-avatar">${iconString(ICONS.sparkles, 16)}</div>
-            <span class="ai-insight-title">AI Pricing Insight <span style="font-size:0.7rem;font-weight:600;padding:0.1rem 0.35rem;border-radius:10px;background:rgba(224,86,118,0.12);color:var(--rose);margin-left:0.4rem;display:inline-block;vertical-align:middle;">₦2,400/mo</span></span>
+            <span class="ai-insight-title">AI Pricing Insight <span style="font-size:0.7rem;font-weight:600;padding:0.1rem 0.35rem;border-radius:10px;background:rgba(224,86,118,0.12);color:var(--rose);margin-left:0.4rem;display:inline-block;vertical-align:middle;">₦1,200/mo</span></span>
           </div>
           <div class="ai-insight-text" id="aiInsightText">
-            Click "Calculate" to get your personalised pricing insight.
+            Start filling in your costs to see your pricing insight.
           </div>
           <div class="ai-insight-actions" id="aiInsightActions">
             <button class="btn btn-sm btn-ghost" data-ai="insight">${iconString(ICONS.sparkles, 14)} Refresh</button>
             <button class="btn btn-sm btn-ghost" data-ai="optimization">${iconString(ICONS.zap, 14)} Optimize Costs</button>
             <button class="btn btn-sm btn-ghost" data-ai="market">${iconString(ICONS.trendingUp, 14)} Market Context</button>
             <button class="btn btn-sm btn-rose" id="saveCalcBtn">${iconString(ICONS.download, 14)} Save</button>
-          </div>
-        </div>
       </div>
     </div>
+  </div>
+</div>
   `;
 
   bindCalculatorEvents();
 }
 
 function bindCalculatorEvents(): void {
+  // Real-time updates for input fields
+  document.querySelectorAll<HTMLInputElement>(".input-field").forEach(field => {
+    field.addEventListener("input", () => runCalculation());
+    field.addEventListener("change", () => runCalculation());
+  });
   // Currency select
   const currencySelect = document.getElementById("calcCurrency") as HTMLSelectElement;
   currencySelect.value = getCurrency();
@@ -260,6 +263,9 @@ function bindCalculatorEvents(): void {
     }
     // Clear the active calculation id from store
     store.update({ activeCalcId: null });
+  } else {
+    // Initial calculation with default (zero) values to populate the meter
+    runCalculation();
   }
 }
 
@@ -404,47 +410,6 @@ function renderPricingTab(): string {
   `;
 }
 
-function validateInputs(): boolean {
-  let isValid = true;
-  const requiredFields = [
-    "rawMaterials", "packaging", "equipment", "unitsPerMonth",
-    "desiredMargin"
-  ];
-  
-  // Reset validation states
-  document.querySelectorAll(".input-group").forEach(group => {
-    group.classList.remove("has-error");
-  });
-  
-  // Validate required fields
-  for (const fieldId of requiredFields) {
-    const field = document.getElementById(fieldId) as HTMLInputElement;
-    const value = parseFloat(field.value) || 0;
-    
-    if (value <= 0) {
-      const group = field.closest(".input-group");
-      if (group) group.classList.add("has-error");
-      isValid = false;
-    }
-  }
-  
-  // Special validation for unitsPerMonth
-  const unitsField = document.getElementById("unitsPerMonth") as HTMLInputElement;
-  const unitsValue = parseFloat(unitsField.value) || 0;
-  if (unitsValue <= 0) {
-    const group = unitsField.closest(".input-group");
-    if (group) group.classList.add("has-error");
-    isValid = false;
-  }
-  
-  if (!isValid) {
-    showToast("Please fill in all required fields with values greater than 0");
-    return false;
-  }
-  
-  return true;
-}
-
 function gatherInputs(): CalcInputs {
   return {
     productName: (document.getElementById("productName") as HTMLInputElement)?.value || "",
@@ -482,30 +447,14 @@ function updatePrefixSymbols(): void {
 }
 
 export function runCalculation(): void {
-  if (!validateInputs()) {
-    return;
-  }
+  const inputs = gatherInputs();
+  lastInputs = { ...inputs };
+  const result = calculate(inputs);
+  lastResult = result;
 
-  // Show loading state
-  const loadingEl = document.getElementById("calcLoading")!;
-  const contentEl = document.getElementById("calcContent")!;
-  loadingEl.style.display = "flex";
-  contentEl.style.display = "none";
-
-  // Simulate calculation delay
-  setTimeout(() => {
-    const inputs = gatherInputs();
-    lastInputs = { ...inputs };
-    const result = calculate(inputs);
-    lastResult = result;
-
-    displayResults(inputs, result);
-    getRuleInsight(inputs, result);
-
-    // Hide loading state
-    loadingEl.style.display = "none";
-    contentEl.style.display = "block";
-  }, 800);
+  displayResults(inputs, result);
+  getRuleInsight(inputs, result);
+  document.getElementById("resultsPanel")?.classList.add("visible");
 }
 
 function displayResults(inputs: CalcInputs, result: CalcResult): void {
@@ -522,24 +471,24 @@ function displayResults(inputs: CalcInputs, result: CalcResult): void {
   document.getElementById("resMonthlyProfit")!.textContent = fmt(monthlyProfit);
 
   // Profit meter
-  const meterPct = Math.min((actualMargin / 50) * 100, 100);
+    const meterPct = Math.min((actualMargin / 50) * 100, 100);
   const meterFill = document.getElementById("meterFill")!;
   const meterStatus = document.getElementById("meterStatus")!;
-  meterFill.style.width = `${meterPct}%`;
+    meterFill.style.width = `${meterPct}%`;
 
-  if (actualMargin < 10) {
-    meterFill.style.background = "linear-gradient(90deg,#E74C3C,#C0392B)";
-    meterStatus.textContent = "At Risk";
-    meterStatus.className = "profit-meter-status status-bad";
-  } else if (actualMargin < 20) {
-    meterFill.style.background = "linear-gradient(90deg,#F39C12,#E67E22)";
-    meterStatus.textContent = "Could Improve";
-    meterStatus.className = "profit-meter-status status-ok";
-  } else {
-    meterFill.style.background = "linear-gradient(90deg,var(--mint-dark),var(--success))";
-    meterStatus.textContent = "Healthy";
-    meterStatus.className = "profit-meter-status status-good";
-  }
+    if (actualMargin < 10) {
+      meterFill.style.background = "linear-gradient(90deg,#E74C3C,#C0392B)";
+      meterStatus.textContent = "At Risk";
+      meterStatus.className = "profit-meter-status status-bad";
+    } else if (actualMargin < 25) {
+      meterFill.style.background = "linear-gradient(90deg,#F39C12,#E67E22)";
+      meterStatus.textContent = "Could Improve";
+      meterStatus.className = "profit-meter-status status-ok";
+    } else {
+      meterFill.style.background = "linear-gradient(90deg,var(--mint-dark),var(--success))";
+      meterStatus.textContent = "Healthy";
+      meterStatus.className = "profit-meter-status status-good";
+    }
 
   // Competitor comparison
   const compBox = document.getElementById("competitorBox")!;

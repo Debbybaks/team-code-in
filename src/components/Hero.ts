@@ -28,7 +28,14 @@ export function renderHero(): void {
   `;
 
   document.getElementById("heroCalcBtn")!.addEventListener("click", () => {
-    document.getElementById("calcSection")?.scrollIntoView({ behavior: "smooth" });
+    if (window.location.hash === "#/" || window.location.hash === "") {
+      document.getElementById("calcSection")?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        document.getElementById("calcSection")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
   });
 
   document.getElementById("heroDashboardBtn")!.addEventListener("click", () => {

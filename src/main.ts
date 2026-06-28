@@ -10,7 +10,7 @@ import { renderFeatures } from "./components/Features";
 import { renderTipsSection } from "./components/TipsSection";
 import { renderEmpowermentBanner } from "./components/EmpowermentBanner";
 import { renderFooter } from "./components/Footer";
-import { renderCalculator, cleanupCalculator } from "./components/Calculator";
+import { renderReactCalculator, unmountReactCalculator } from "./components/PricingDashboard";
 import { renderDashboard, cleanupDashboard } from "./components/Dashboard";
 import { renderHistory } from "./components/History";
 import { renderProfile } from "./components/Profile";
@@ -211,6 +211,7 @@ function updateBottomNav(route: Route): void {
 
 function setupRoutes(): void {
   onRoute("/", () => {
+    unmountReactCalculator();
     cleanupDashboard();
     cleanupAICoach();
     updateBottomNav("/");
@@ -233,9 +234,7 @@ function setupRoutes(): void {
     renderTicker();
     renderStats();
     renderCostAlert();
-    document.addEventListener("DOMContentLoaded", () => {
-  renderCalculator();
-});
+    renderReactCalculator();
 
     // Set up IntersectionObserver for lazy loading
     const lazySections = document.querySelectorAll('.lazy-load');
@@ -271,7 +270,7 @@ function setupRoutes(): void {
   });
 
   onRoute("/pricing", () => {
-    cleanupCalculator();
+    unmountReactCalculator();
     cleanupDashboard();
     cleanupAICoach();
     updateBottomNav("/pricing");
@@ -282,7 +281,7 @@ function setupRoutes(): void {
   });
 
   onRoute("/dashboard", () => {
-    cleanupCalculator();
+    unmountReactCalculator();
     cleanupAICoach();
     updateBottomNav("/dashboard");
     if (!store.isAuthenticated()) { renderAuthModal(); return; }
@@ -293,7 +292,7 @@ function setupRoutes(): void {
   });
 
   onRoute("/history", () => {
-    cleanupCalculator();
+    unmountReactCalculator();
     cleanupDashboard();
     cleanupAICoach();
     updateBottomNav("/history");
@@ -305,7 +304,7 @@ function setupRoutes(): void {
   });
 
   onRoute("/profile", () => {
-    cleanupCalculator();
+    unmountReactCalculator();
     cleanupDashboard();
     cleanupAICoach();
     updateBottomNav("/profile");

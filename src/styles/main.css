@@ -950,13 +950,17 @@ a { color: inherit; text-decoration: none; }
   font-size: 0.76rem;
 }
 .bar-label {
-  width: 100px;
+  min-width: 70px;
+  max-width: 35%;
   color: var(--text-mid);
   flex-shrink: 0;
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .bar-track {
   flex: 1;
